@@ -1,0 +1,329 @@
+{
+  "name": "AutoFlow Master Controller - FIXED",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "telemetry",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "88b90443-1261-49e0-8f81-e2a5087aad19",
+      "name": "Telemetry Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -336,
+        96
+      ],
+      "webhookId": "telemetry-webhook-id"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "assign1",
+              "name": "trace_id",
+              "value": "={{ $json.body.trace_id || 'trace_' + $now.format('x') }}",
+              "type": "string"
+            },
+            {
+              "id": "assign2",
+              "name": "metric_name",
+              "value": "={{ $json.body.metric_name }}",
+              "type": "string"
+            },
+            {
+              "id": "assign3",
+              "name": "metric_value",
+              "value": "={{ $json.body.metric_value }}",
+              "type": "string"
+            },
+            {
+              "id": "assign4",
+              "name": "timestamp",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0a3fb515-b7c9-4e41-a0e1-78ccaaeb26d0",
+      "name": "Normalize Telemetry",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -144,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Simple anomaly detection\nconst items = $input.all();\nreturn items.map(item => {\n  const val = parseFloat(item.json.metric_value || 0);\n  const isAnomaly = val > 80;\n  return {\n    json: {\n      ...item.json,\n      is_anomaly: isAnomaly,\n      anomaly_score: val / 100,\n      detection_time: new Date().toISOString()\n    }\n  };\n});"
+      },
+      "id": "f01c5096-4e68-4601-bb11-2f4d02f7623b",
+      "name": "Anomaly Detection",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        64,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond1",
+              "leftValue": "={{ $json.is_anomaly }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "4c1f565b-e361-4d8c-9f02-ddd66bb34192",
+      "name": "Is Anomaly?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        272,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Swarm scoring - decision engine\nconst item = $input.first().json;\nconst score = (item.anomaly_score || 0) * 0.7;\nconst severity = score > 0.7 ? 'CRITICAL' : score > 0.5 ? 'HIGH' : 'MEDIUM';\n\nreturn [{ \n  json: { \n    ...item, \n    final_score: score,\n    severity: severity,\n    decision_timestamp: new Date().toISOString()\n  } \n}];"
+      },
+      "id": "8c4e3a34-06a3-459f-8076-cab9d5eab7ed",
+      "name": "Decision Engine",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "route1",
+              "leftValue": "={{ $json.final_score }}",
+              "rightValue": 0.5,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "829732f2-0f0c-48b6-8171-8a9878005ebc",
+      "name": "Route Decision",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        672,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log ignored event\nconst item = $input.first().json;\nreturn [{\n  json: {\n    ...item,\n    action: 'IGNORED',\n    reason: 'Score below threshold',\n    logged_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "6dd7e046-2ae6-49aa-9c45-50ed0655d651",
+      "name": "Log Ignored",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        864,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare alert payload\nconst item = $input.first().json;\nreturn [{\n  json: {\n    alert_type: 'ANOMALY_DETECTED',\n    trace_id: item.trace_id,\n    metric_name: item.metric_name,\n    metric_value: item.metric_value,\n    anomaly_score: item.anomaly_score,\n    final_score: item.final_score,\n    severity: item.severity,\n    message: `⚠️ ALERT: ${item.metric_name} = ${item.metric_value} (Score: ${item.final_score.toFixed(2)})`,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "ad48d8ca-f7a1-4caa-9dc9-06da2c63422a",
+      "name": "Prepare Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        864,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Mock alert sender (replace with real Slack/Email node)\nconst item = $input.first().json;\nconsole.log('ALERT SENT:', item.message);\nreturn [{\n  json: {\n    ...item,\n    alert_sent: true,\n    sent_at: new Date().toISOString(),\n    status: 'SUCCESS'\n  }\n}];"
+      },
+      "id": "6eb3e546-a6f1-4819-a1ef-cedcc0b788a5",
+      "name": "Send Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1072,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"parameters\": {\n    \"respondWith\": \"json\",\n    \"responseBody\": \"{\\n  \\\"status\\\": \\\"ok\\\",\\n  \\\"processed\\\": true,\\n  \\\"trace_id\\\": \\\"{{ $json.body.trace_id || 'unknown' }}\\\",\\n  \\\"timestamp\\\": \\\"{{ $now.toISO() }}\\\"\\n}\",\n    \"options\": {}\n  },\n  \"id\": \"i9j0k1l2-3456-78ab-cdef-90abcdef0123\",\n  \"name\": \"Webhook Response\",\n  \"type\": \"n8n-nodes-base.respondToWebhook\",\n  \"typeVersion\": 1,\n  \"position\": [400, 500]\n}",
+        "options": {}
+      },
+      "id": "dc62a455-960f-4cd9-b39b-9feda0286216",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        288
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "94f4c2d6-542f-41c7-813b-865e656666c3",
+      "name": "No Operation",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        464,
+        -16
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telemetry Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Telemetry",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Telemetry": {
+      "main": [
+        [
+          {
+            "node": "Anomaly Detection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anomaly Detection": {
+      "main": [
+        [
+          {
+            "node": "Is Anomaly?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Anomaly?": {
+      "main": [
+        [
+          {
+            "node": "No Operation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Decision Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decision Engine": {
+      "main": [
+        [
+          {
+            "node": "Route Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Decision": {
+      "main": [
+        [
+          {
+            "node": "Log Ignored",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8886b57d-9104-432a-a316-33c2096bbd6b",
+  "meta": {
+    "instanceId": "ad165b11320bc91501ab08613cc3a48a62a6caca4d5c8b14ca82cc313b3b96cd"
+  },
+  "id": "RxvlBCBsmw3TPUBc",
+  "tags": []
+}
