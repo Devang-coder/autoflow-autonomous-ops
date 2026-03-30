@@ -5,7 +5,7 @@
 
 ## 🎯 System Overview
 
-**AutoFlow** is an Autonomous IT Operations platform that demonstrates self-healing, self-optimizing infrastructure management through intelligent agent-based decision making. Built for the ET Gen AI Hackathon, it addresses the "Autonomous IT: Rethinking the Future of Self-Managing Systems" challenge.
+**AutoFlow** is an Autonomous IT Operations platform that demonstrates self-healing, self-optimizing infrastructure management through intelligent agent-based decision making. It addresses the "Autonomous IT: Rethinking the Future of Self-Managing Systems" challenge.
 
 ### Core Capabilities
 
@@ -475,8 +475,6 @@ if (metric === 'disk_io' && finalScore > 0.8) {
 ---
 
 ## 📝 License & Credits
-
-**Created for**: ET Gen AI Hackathon 2026  
 **Problem Statement**: Autonomous IT Operations  
 **Team**: AutoFlow AI  
 **Technology Stack**: n8n, SQLite, Node.js, Kubernetes  
