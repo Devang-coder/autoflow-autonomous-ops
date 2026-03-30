@@ -1,510 +1,254 @@
-# AutoFlow Autonomous IT Operations System
-## Complete Implementation Guide
+# AutoFlow
+## Autonomous IT Operations for Cloud-Native Systems
+
+AutoFlow is an autonomous IT operations platform that monitors cloud-native infrastructure, detects anomalies, evaluates operational risk, and executes remediation automatically. It is designed for modern applications running on Kubernetes and other distributed cloud environments, where downtime, alert fatigue, and slow incident response create real operational cost.
 
 ---
 
-## 🎯 System Overview
+## Problem Statement
 
-**AutoFlow** is an Autonomous IT Operations platform that demonstrates self-healing, self-optimizing infrastructure management through intelligent agent-based decision making. It addresses the "Autonomous IT: Rethinking the Future of Self-Managing Systems" challenge.
+Modern cloud-based applications generate large volumes of telemetry from containers, pods, services, nodes, and logs. In practice, infrastructure management is still mostly reactive: engineers receive alerts, investigate the issue manually, decide the fix, and then execute remediation. This leads to slower recovery, higher downtime, and unnecessary human load on DevOps and SRE teams.
 
-### Core Capabilities
-
-✅ **Self-Healing Systems**: Automatic detection and resolution of infrastructure failures  
-✅ **Predictive Operations (AIOps)**: Machine learning-based anomaly detection  
-✅ **Autonomous Scaling**: Dynamic resource allocation based on demand  
-✅ **Self-Securing Infrastructure**: Automated isolation and remediation  
-✅ **Service Assurance**: Continuous SLA monitoring with auto-correction  
+AutoFlow addresses this gap by creating a closed-loop autonomous operations layer that can detect issues, assess impact, choose an action, and carry out remediation with minimal human intervention.
 
 ---
 
-## 🏗️ Architecture
+## What AutoFlow Does
 
-### Control Loop (Detect → Validate → Evaluate → Decide → Execute → Learn)
+At its core, AutoFlow performs four functions:
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    AUTOFLOW CONTROL LOOP                        │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐   │
-│  │  DETECT  │ → │ VALIDATE │ → │ EVALUATE │ → │  DECIDE  │    │
-│  └──────────┘   └──────────┘   └──────────┘   └──────────┘    │
-│       ↓                                              ↓          │
-│  ┌──────────┐                                  ┌──────────┐    │
-│  │  LEARN   │ ← ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ │ EXECUTE  │    │
-│  └──────────┘                                  └──────────┘    │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
+1. Monitors infrastructure telemetry
+2. Detects abnormal behavior
+3. Decides whether action is needed
+4. Executes remediation automatically
 
-### System Components
-
-1. **Event Ingestion Layer**
-   - Webhook-based telemetry collection
-   - Field normalization and validation
-   - Duplicate detection
-
-2. **Anomaly Detection Engine**
-   - Z-score statistical analysis
-   - Threshold-based detection
-   - Spike detection algorithms
-
-3. **Multi-Agent Swarm Intelligence**
-   - **Anomaly Agent**: Severity assessment
-   - **Risk Agent**: Infrastructure reliability evaluation
-   - **SLA Agent**: Service level impact analysis
-   - **Context Agent**: Environmental and temporal factors
-
-4. **Consensus Decision Engine**
-   - Weighted agent scoring: `0.35×anomaly + 0.25×risk + 0.25×sla + 0.15×context`
-   - Three-tier decision model: Ignore | Alert | Remediate
-
-5. **Autonomous Action Execution**
-   - Container restart
-   - Pod deletion/restart
-   - Service scaling
-   - Traffic rerouting
-   - Node isolation
-
-6. **Adaptive Learning System**
-   - Success/failure feedback loop
-   - Dynamic agent weight adjustment
-   - Continuous performance optimization
+In a live environment, this means AutoFlow can respond to issues such as:
+- CPU spikes
+- Memory leaks
+- Service crashes
+- Latency surges
+- Error-rate increases
+- SLA risk
+- Infrastructure instability
 
 ---
 
-## 📊 Data Flow
+## Target Niche
 
-```
-Prometheus/K8s/Logs
-        ↓
-   [Webhook Trigger]
-        ↓
-  [Normalization]
-        ↓
-   [SQLite Store]
-        ↓
-[Duplicate Check] → Reject if duplicate
-        ↓
-[Anomaly Detection]
-  • Z-score analysis
-  • Threshold check
-  • Spike detection
-        ↓
-[Multi-Agent Evaluation]
-  ┌─────────────────┐
-  │ Anomaly Agent   │ → Score: 0-1
-  │ Risk Agent      │ → Score: 0-1
-  │ SLA Agent       │ → Score: 0-1
-  │ Context Agent   │ → Score: 0-1
-  └─────────────────┘
-        ↓
-[Decision Aggregation]
-  Final Score = Weighted Sum
-        ↓
-   [Routing]
-    ├─ <0.4 → Ignore
-    ├─ 0.4-0.7 → Alert (Slack/Email)
-    └─ ≥0.7 → Remediate
-              ↓
-        [Action Selection]
-              ↓
-        [Execute via K8s API]
-              ↓
-        [Wait 60s]
-              ↓
-        [Evaluate Success]
-              ↓
-        [Update Weights]
-              ↓
-        [Learn & Improve]
-```
+AutoFlow is built for cloud-native teams that need intelligent operations but do not have fully automated AIOps systems.
+
+Primary users:
+- Startups running on Kubernetes
+- Small and mid-sized DevOps teams
+- SaaS platforms with uptime requirements
+- Microservice-based backend systems
+- Hackathon and prototype environments that need real autonomy
+
+This is not a frontend product and not a consumer application. It is an infrastructure control system for cloud-hosted services.
 
 ---
 
-## 🚀 Deployment Instructions
+## Core Features
+
+### 1. Event Ingestion
+AutoFlow receives telemetry through webhook-based event ingestion and normalizes incoming data for processing.
+
+### 2. Anomaly Detection
+The system uses statistical methods such as:
+- Z-score analysis
+- Threshold-based detection
+- Spike detection
+
+### 3. Multi-Agent Evaluation
+AutoFlow uses specialized agents to assess the incident from different angles:
+- Anomaly Agent
+- Risk Agent
+- SLA Agent
+- Context Agent
+
+### 4. Consensus Decision Engine
+Agent outputs are combined into a weighted decision score to determine whether the event should be ignored, alerted on, or remediated.
+
+### 5. Autonomous Remediation
+Based on the final decision, AutoFlow can perform actions such as:
+- Restarting containers
+- Restarting pods
+- Scaling services
+- Rerouting traffic
+- Isolating nodes
+
+### 6. Adaptive Learning
+The system records whether actions succeeded or failed and uses that feedback to adjust decision weights over time.
+
+### 7. Observability and Auditability
+AutoFlow stores operational data for dashboards, performance analysis, and audit trails.
+
+---
+
+## System Architecture
+
+AutoFlow follows a closed-loop control cycle:
+
+Detect → Validate → Evaluate → Decide → Execute → Learn
+
+### Flow Overview
+
+1. Telemetry is received from Prometheus, Kubernetes, or logs
+2. The event is normalized and stored
+3. Duplicate events are filtered
+4. Anomaly detection is applied
+5. Multiple agents evaluate the issue
+6. A final score is computed
+7. The system chooses one of three outcomes:
+   - Ignore
+   - Alert
+   - Remediate
+8. If remediation is required, AutoFlow executes the selected action through the Kubernetes API
+9. The system waits for the outcome
+10. The result is used to update future decisions
+
+---
+
+## Why This Matters
+
+Cloud infrastructure failures are expensive because they affect availability, user experience, and business trust. AutoFlow reduces the manual burden on operations teams by turning incident response into a machine-driven process.
+
+The value of the system is not just detection. The value is:
+- Faster recovery
+- Lower MTTR
+- Reduced alert fatigue
+- Fewer manual interventions
+- Better infrastructure consistency
+- Continuous improvement through feedback
+
+---
+
+## Technology Stack
+
+- n8n
+- SQLite
+- Node.js
+- Kubernetes
+- Prometheus
+- Grafana
+- Slack / Email integrations
+
+---
+
+## Data Model and Analytics
+
+AutoFlow stores operational data in SQLite and exposes analytics views for monitoring system behavior.
+
+Example dashboards:
+- System health
+- Service performance
+- Agent performance
+- Recent actions
+
+Key metrics:
+- Telemetry event rate
+- Anomaly detection rate
+- Action success rate
+- Mean Time to Detect (MTTD)
+- Mean Time to Remediate (MTTR)
+- Agent consensus score
+- Learning progress
+
+---
+
+## Example Use Cases
+
+### High CPU Usage
+When a service shows sustained CPU pressure, AutoFlow can detect the anomaly and scale the service automatically.
+
+### Memory Leak
+When memory usage rises abnormally over time, AutoFlow can restart the container or raise an alert depending on severity.
+
+### Network Latency
+When latency becomes high, AutoFlow can reroute traffic or trigger a service-level response.
+
+### High Error Rate
+When error rates exceed acceptable thresholds, AutoFlow can restart pods and notify the team.
+
+---
+
+## How It Works in Practice
+
+A service running in Kubernetes begins degrading. Prometheus or logs send telemetry to AutoFlow. The system detects that the metrics are abnormal, evaluates the likely impact using its agents, computes a final risk score, and decides whether to alert or remediate. If remediation is selected, AutoFlow executes the action automatically and verifies whether the system recovered.
+
+That is the core product:
+an autonomous incident response layer for cloud infrastructure.
+
+---
+
+## Deployment
 
 ### Prerequisites
+- n8n 1.x or higher
+- SQLite 3.x
+- Node.js 18.x or higher
+- Kubernetes cluster for production use
+- Prometheus and Grafana for observability
 
-- **n8n**: Version 1.x or higher
-- **SQLite**: Version 3.x
-- **Node.js**: Version 18.x or higher
-- **Kubernetes Cluster**: (Optional, for production)
-- **Prometheus/Grafana**: (Optional, for monitoring)
-
-### Step 1: Database Setup
-
-```bash
-# Create database directory
-mkdir -p /var/lib/autoflow
-
-# Initialize database
-sqlite3 /var/lib/autoflow/autoflow.db < autoflow_database_schema.sql
-
-# Verify tables
-sqlite3 /var/lib/autoflow/autoflow.db ".tables"
-```
-
-### Step 2: n8n Installation
-
-```bash
-# Install n8n globally
-npm install -g n8n
-
-# Or use Docker
-docker run -it --rm \
-  --name n8n \
-  -p 5678:5678 \
-  -v ~/.n8n:/home/node/.n8n \
-  n8nio/n8n
-```
-
-### Step 3: Import Workflow
-
-1. Open n8n web interface: `http://localhost:5678`
-2. Navigate to **Workflows** → **Import from File**
-3. Upload `autoflow_master_workflow.json`
-4. Click **Save** and **Activate**
-
-### Step 4: Configure SQLite Connection
-
-1. In n8n, go to **Credentials** → **Add Credential**
-2. Select **SQLite**
-3. Enter database path: `/var/lib/autoflow/autoflow.db`
-4. Save credential
-
-### Step 5: Configure Kubernetes API (Production)
-
-1. Add **Kubernetes** credential in n8n
-2. Provide cluster endpoint and authentication token
-3. Update HTTP Request nodes with your cluster endpoint
-
-### Step 6: Configure Alert Integrations
-
-**Slack Integration:**
-```bash
-# Create Slack webhook
-# Go to https://api.slack.com/messaging/webhooks
-# Copy webhook URL
-# Update "Send Alert" node in n8n workflow
-```
-
-**Email Integration:**
-```bash
-# Configure SMTP in n8n
-# Update alert nodes to use Email node instead of HTTP
-```
-
-### Step 7: Test the System
-
-```bash
-# Send test telemetry event
-curl -X POST http://localhost:5678/webhook/telemetry \
-  -H "Content-Type: application/json" \
-  -d '{
-    "trace_id": "test_001",
-    "event_id": "event_001",
-    "timestamp": "2026-03-26T10:00:00Z",
-    "source_system": "prometheus",
-    "metric_name": "cpu_usage",
-    "metric_value": 95,
-    "service_name": "web-api",
-    "container_id": "container_abc",
-    "pod_id": "pod_123",
-    "node_id": "node_001",
-    "cluster_id": "prod-cluster",
-    "region": "us-east-1",
-    "severity_level": 4
-  }'
-```
+### Setup Summary
+1. Initialize the SQLite database
+2. Run n8n
+3. Import the workflow
+4. Configure database credentials
+5. Configure Kubernetes credentials
+6. Set up alert integrations
+7. Send a test telemetry event
 
 ---
 
-## 📈 Monitoring & Observability
+## Security Considerations
 
-### Built-in Database Views
+AutoFlow is designed with operational safety in mind.
 
-**System Health Dashboard:**
-```sql
-SELECT * FROM v_system_health 
-WHERE date = DATE('now');
-```
-
-**Service Performance:**
-```sql
-SELECT * FROM v_service_performance 
-ORDER BY anomaly_count DESC;
-```
-
-**Agent Performance:**
-```sql
-SELECT * FROM v_agent_performance 
-ORDER BY success_rate DESC;
-```
-
-**Recent Actions:**
-```sql
-SELECT * FROM v_recent_actions 
-LIMIT 20;
-```
-
-### Key Metrics to Monitor
-
-- **Telemetry Event Rate**: Events/minute
-- **Anomaly Detection Rate**: % of events flagged
-- **Action Success Rate**: % of successful remediations
-- **Mean Time to Detect (MTTD)**: Time from event to anomaly detection
-- **Mean Time to Remediate (MTTR)**: Time from detection to resolution
-- **Agent Consensus Score**: Agreement between agents
-- **Learning Rate Progress**: Weight adaptation over time
+Recommended safeguards:
+- Webhook authentication
+- Kubernetes RBAC restrictions
+- Audit logging
+- Rate limiting
+- Secure credential storage
 
 ---
 
-## 🧪 Testing Scenarios
+## Performance Targets
 
-### Scenario 1: High CPU Usage
-```json
-{
-  "metric_name": "cpu_usage",
-  "metric_value": 98,
-  "service_name": "api-gateway",
-  "severity_level": 5
-}
-```
-**Expected**: Auto-scale service
-
-### Scenario 2: Memory Leak
-```json
-{
-  "metric_name": "memory_usage",
-  "metric_value": 92,
-  "service_name": "data-processor",
-  "severity_level": 4
-}
-```
-**Expected**: Restart container
-
-### Scenario 3: Network Latency
-```json
-{
-  "metric_name": "network_latency",
-  "metric_value": 450,
-  "service_name": "payment-service",
-  "severity_level": 3
-}
-```
-**Expected**: Reroute traffic
-
-### Scenario 4: High Error Rate
-```json
-{
-  "metric_name": "error_rate",
-  "metric_value": 8.5,
-  "service_name": "auth-service",
-  "severity_level": 5
-}
-```
-**Expected**: Restart pod + alert
+- Telemetry ingestion: under 200 ms
+- Anomaly detection: under 500 ms
+- Decision computation: under 300 ms
+- Action execution: under 5 s
+- End-to-end remediation: under 10 s
 
 ---
 
-## 🎓 Agent Intelligence Details
+## Competitive Advantages
 
-### Anomaly Agent
-- **Purpose**: Assess anomaly severity and impact
-- **Inputs**: Z-score, detection method, metric type
-- **Output**: Risk score (0-1) based on metric criticality
-- **Weight**: 35%
-
-### Risk Agent
-- **Purpose**: Evaluate infrastructure reliability
-- **Inputs**: Container health, pod status, historical failures
-- **Output**: Infrastructure risk score (0-1)
-- **Weight**: 25%
-
-### SLA Agent
-- **Purpose**: Measure service level impact
-- **Inputs**: Metric value vs. SLA thresholds
-- **Output**: SLA breach probability (0-1)
-- **Weight**: 25%
-
-### Context Agent
-- **Purpose**: Factor in environmental context
-- **Inputs**: Time of day, deployment events, regional factors
-- **Output**: Context-adjusted risk score (0-1)
-- **Weight**: 15%
+- Closed-loop autonomy from detection to learning
+- Multi-agent decision-making
+- Real Kubernetes integration
+- Explainable operational decisions
+- Feedback-driven improvement
+- Designed for cloud-native systems
 
 ---
 
-## 🔄 Adaptive Learning
+## Project Summary
 
-### Weight Update Algorithm
-
-```javascript
-if (action_successful) {
-  // Reward agents that voted for action
-  for each agent:
-    if (agent_score > 0.5):
-      weight += learning_rate × contribution
-} else {
-  // Penalize agents that voted for action
-  for each agent:
-    if (agent_score > 0.5):
-      weight -= learning_rate
-}
-
-// Normalize weights to sum to 1.0
-normalize(weights)
-```
-
-### Learning Rate
-- Default: 0.05 (5% adjustment per feedback)
-- Adjustable in system_config table
+AutoFlow is an autonomous operations platform for cloud-native applications. It continuously monitors infrastructure telemetry, detects abnormal behavior, evaluates operational risk, and executes remediation automatically. Its core purpose is to reduce downtime and remove repetitive manual intervention from incident response.
 
 ---
 
-## 🔐 Security Considerations
+## Problem Statement in One Line
 
-1. **Webhook Authentication**: Add API key validation
-2. **Kubernetes RBAC**: Limit service account permissions
-3. **Audit Logging**: All actions logged in database
-4. **Rate Limiting**: Prevent webhook abuse
-5. **Secrets Management**: Use n8n credentials vault
+Cloud-native systems still depend too heavily on human operators to detect and fix infrastructure issues, so AutoFlow automates that operational loop.
 
 ---
 
-## 📊 Performance Benchmarks
+## License and Credits
 
-### Target Performance Metrics
-
-| Metric | Target | Notes |
-|--------|--------|-------|
-| Telemetry Ingestion | < 200ms | Webhook to DB |
-| Anomaly Detection | < 500ms | Including Z-score calculation |
-| Decision Computation | < 300ms | 4-agent evaluation |
-| Action Execution | < 5s | API call + verification |
-| End-to-End MTTR | < 10s | Detection to remediation |
-| System Throughput | 10,000 events/min | Peak capacity |
-
----
-
-## 🌟 Hackathon Evaluation Alignment
-
-### End-to-End Autonomy ✅
-- **Zero-touch execution** from detection to remediation
-- **Self-correcting** through feedback loops
-- **Minimal human intervention** (only for approval thresholds)
-
-### Intelligent Agents ✅
-- **Multi-agent swarm** with specialized roles
-- **Weighted consensus** decision making
-- **Adaptive learning** from outcomes
-
-### Explainability ✅
-- **Audit trail** in database for every decision
-- **Agent score breakdown** showing reasoning
-- **Action justification** linked to specific metrics
-
-### Dashboards & Integration ✅
-- **SQLite views** for real-time analytics
-- **Kubernetes API** integration
-- **Slack/Email** alerting
-- **Prometheus** metrics ingestion
-
-### Demo Quality ✅
-- **Production-ready** n8n workflow
-- **Complete database schema**
-- **Comprehensive documentation**
-- **Test scenarios** included
-
----
-
-## 🔧 Customization Guide
-
-### Adjust Decision Thresholds
-```sql
-UPDATE system_config 
-SET config_value = '0.3' 
-WHERE config_key = 'decision_threshold_ignore';
-```
-
-### Modify Agent Weights
-```sql
-UPDATE agent_weights 
-SET anomaly_weight = 0.40, 
-    risk_weight = 0.30,
-    context_weight = 0.10
-WHERE is_active = 1;
-```
-
-### Add New Metrics
-```javascript
-// In Anomaly Detection function node
-const baselines = {
-  'cpu_usage': { mean: 45, std: 15 },
-  'memory_usage': { mean: 60, std: 20 },
-  'disk_io': { mean: 100, std: 30 },  // Add new metric
-  'custom_metric': { mean: 50, std: 20 }
-};
-```
-
-### Add New Actions
-```javascript
-// In Action Selection function node
-if (metric === 'disk_io' && finalScore > 0.8) {
-  selectedAction = 'clear_cache';
-  actionPriority = 'high';
-}
-```
-
----
-
-## 📞 Support & Contribution
-
-### Troubleshooting
-
-**Issue**: Webhook not receiving events  
-**Solution**: Check n8n webhook URL and ensure firewall allows traffic
-
-**Issue**: SQLite permission denied  
-**Solution**: `chmod 666 /var/lib/autoflow/autoflow.db`
-
-**Issue**: Actions not executing  
-**Solution**: Verify Kubernetes API credentials and RBAC permissions
-
----
-
-## 📝 License & Credits
-**Problem Statement**: Autonomous IT Operations  
-**Team**: AutoFlow AI  
-**Technology Stack**: n8n, SQLite, Node.js, Kubernetes  
-
----
-
-## 🎯 Next Steps
-
-1. ✅ Deploy n8n workflow
-2. ✅ Initialize database
-3. ✅ Configure integrations
-4. ✅ Run test scenarios
-5. ✅ Monitor dashboard
-6. ✅ Tune agent weights
-7. ✅ Scale to production
-
-**System Status**: Production Ready  
-**Autonomy Level**: 95% (human approval optional for critical actions)  
-**Learning Enabled**: Yes  
-**Multi-Agent Intelligence**: 4 specialized agents  
-
----
-
-## 🏆 Competitive Advantages
-
-1. **True Closed-Loop Autonomy**: Complete detect-to-learn cycle
-2. **Explainable AI**: Every decision traceable with agent scores
-3. **Production-Ready**: Real Kubernetes integration, not simulation
-4. **Self-Improving**: Adaptive learning from action outcomes
-5. **Comprehensive Observability**: Built-in analytics views
-6. **Zero-Downtime**: Async action execution with fallback paths
-
-**AutoFlow AI — Autonomous IT, Intelligently Managed**
+Problem Domain: Autonomous IT Operations  
+Project: AutoFlow  
+Stack: n8n, SQLite, Node.js, Kubernetes
